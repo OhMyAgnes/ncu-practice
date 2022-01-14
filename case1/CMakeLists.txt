@@ -1,1 +1,0 @@
-add_executable(case1 case1.cu)

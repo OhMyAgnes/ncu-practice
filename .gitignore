@@ -3,5 +3,10 @@
 !.gitignore
 !CMakeLists.txt
 
-!case1
+!*.h
 !*.cu
+!*.cmake
+
+!cmake
+!include
+!test_cases
