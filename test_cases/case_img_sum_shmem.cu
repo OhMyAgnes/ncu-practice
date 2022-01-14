@@ -29,12 +29,15 @@ __global__ void kernel_sum(const T *src, const int height, const int width, floa
     if (x_index >= width || y_index >= height)
         return;
     
-    load_curr_sh(src + thd_idx, sh);
-    float sum = sum_sh(sh);
-    if(threadIdx.x == 0)
-        atomicAdd(res, sum);
+    atomicAdd(res, static_cast<float>(src[thd_idx])); //global
+    
+    {   //sm                                            
+        // load_curr_sh(src + thd_idx, sh);
+        // float sum = sum_sh(sh);
+        // if(threadIdx.x == 0)
+        //     atomicAdd(res, sum);
+    }
 }
-
 template <typename T>
 float cuMatSum(const T *d_src, const int height, const int width, const dim3 grid, const dim3 block)
 {
@@ -59,9 +62,29 @@ int main()
     CudaSafeCall(cudaMalloc(&d_data, sizeof(char) * size));
     cudaMemset(d_data, 1, sizeof(char) * size);
 
-    dim3 grid(1, 1, 1);
-    dim3 block(256, 1, 1);
-    std::cout << cuMatSum(d_data, 1, 256, grid, block) << std::endl;
+    {
+        dim3 grid(1, 1, 1);
+        dim3 block(1024, 1, 1);
+        std::cout << cuMatSum(d_data, 1, 1024, grid, block) << std::endl;
+    }
+
+    {
+        dim3 grid(1, 1, 1);
+        dim3 block(256, 1, 1);
+        std::cout << cuMatSum(d_data, 1, 256, grid, block) << std::endl;
+    }
+
+    {
+        dim3 grid(1, 1, 1);
+        dim3 block(256, 1, 1);
+        std::cout << cuMatSum(d_data, 1, 256, grid, block) << std::endl;
+    }
+
+    {
+        dim3 grid(1, 1, 1);
+        dim3 block(256, 1, 1);
+        std::cout << cuMatSum(d_data, 1, 256, grid, block) << std::endl;
+    }
 
     cudaFree(d_data);
     return 0;
