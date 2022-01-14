@@ -12,7 +12,7 @@ __global__ void kernel_sum(cudaTextureObject_t tex, const int height, const int 
     if (x_index >= width || y_index >= height)
         return;
 
-    atomicAdd(res, tex2D<float>(tex, x_index, y_index));
+    atomicAdd(res, tex2D<float>(tex, x_index, y_index)); 
 }
 
 float cuMatSum(cudaTextureObject_t tex, const int height, const int width, const dim3 grid, const dim3 block)
@@ -33,7 +33,7 @@ float cuMatSum(cudaTextureObject_t tex, const int height, const int width, const
 
 void cuInitTexture(cudaTextureObject_t &tex, const int width, const int height, cudaArray *cuArray)
 {
-    std::vector<float> hData(1.f, width * height);
+    std::vector<float> hData(width * height, 1.f);
     cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc(32, 0, 0, 0, cudaChannelFormatKindFloat);
     CudaSafeCall(cudaMallocArray(&cuArray, &channelDesc, width, height));
     CudaSafeCall(cudaMemcpyToArray(cuArray, 0, 0, hData.data(), width * height * sizeof(float), cudaMemcpyHostToDevice));
@@ -75,9 +75,17 @@ int main()
 
     cuInitTexture(tex, width, height, cuArray);
 
-    dim3 grid(1, 1, 1);
-    dim3 block(256, 1, 1);
-    std::cout << cuMatSum(tex, 1, 256, grid, block) << std::endl;
+    {
+        dim3 grid(64, 64, 1);
+        dim3 block(16, 16, 1);
+        std::cout << cuMatSum(tex, 1024, 1024, grid, block) << std::endl;
+    }
+
+    {
+        dim3 grid(1, 1, 1);
+        dim3 block(16, 1, 1);
+        std::cout << cuMatSum(tex, 1, 16, grid, block) << std::endl;
+    }
 
     cuFreeTexture(tex, cuArray);
 
