@@ -7,3 +7,9 @@ add_app(
     APP_NAME case_tex
     APP_SRCS case_img_sum_texture.cu
 )
+
+add_app(
+    APP_NAME case_add
+    APP_SRCS case_atomics.cu
+)
+
