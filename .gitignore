@@ -1,3 +1,7 @@
 *
 
 !.gitignore
+!CMakeLists.txt
+
+!case1
+!*.cu
