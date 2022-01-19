@@ -1,1 +1,1 @@
-###Practices for Nsight Compute profiling (Command Line)
+### Practices for Nsight Compute profiling (Command Line)
