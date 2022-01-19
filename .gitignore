@@ -5,8 +5,12 @@
 
 !*.h
 !*.cu
+!*.md
+!*.png
 !*.cmake
 
+!docs
+!docs/*
 !cmake
 !include
 !test_cases
