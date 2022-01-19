@@ -1,8 +1,7 @@
 #include <cuda_wrapper.h>
 #include <stdio.h>
 
-#define BLOCK_SIZE 256
-#define RESTRICTION_SIZE 32
+#define BLOCK_SIZE 32
 
 __global__ void AtomicOnGlobalMem(int *data, int nElem)
 {
@@ -18,7 +17,7 @@ __global__ void WarpAtomicOnGlobalMem(int *data, int nElem)
     unsigned int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
     for (unsigned int i = tid; i < nElem; i += blockDim.x * gridDim.x)
     {
-        atomicExch(data + (i >> 5), 6); 
+        atomicExch(data + (i >> 3), 6); 
     }
 }
 
@@ -44,13 +43,12 @@ __global__ void AtomicOnSharedMem(int *data, int nElem)
 int main(void)
 {
 
-    const int n = 2 << 24;
+    const int n = BLOCK_SIZE;//= 2 << 24;
     int *data = new int[n];
 
-    int i;
-    for (i = 0; i < n; i++)
+    for (int i = 0; i < n; i++)
     {
-        data[i] = i % 1024 + 1;
+        data[i] = i % BLOCK_SIZE + 1;
     }
 
     int *dev_data;
@@ -60,38 +58,33 @@ int main(void)
 
     delete []data;
 
-    for (int i = 0; i < 1; i++)
     {
         dim3 blocksize(BLOCK_SIZE);
-        dim3 griddize((12 * 2048) / BLOCK_SIZE); 
+        dim3 griddize((n + BLOCK_SIZE - 1)/ BLOCK_SIZE); 
         AtomicOnGlobalMem<<<griddize, blocksize>>>(dev_data, n);
         CudaSafeCall(cudaPeekAtLastError());
     }
     CudaSafeCall(cudaDeviceSynchronize());
 
-
-    for (int i = 0; i < 1; i++)
     {
         dim3 blocksize(BLOCK_SIZE);
-        dim3 griddize((12 * 2048) / BLOCK_SIZE);
+        dim3 griddize((n + BLOCK_SIZE - 1)/ BLOCK_SIZE); 
         WarpAtomicOnGlobalMem<<<griddize, blocksize>>>(dev_data, n);
         CudaSafeCall(cudaPeekAtLastError());
     }
     CudaSafeCall(cudaDeviceSynchronize());
 
-    for (int i = 0; i < 1; i++)
     {
         dim3 blocksize(BLOCK_SIZE);
-        dim3 griddize((12 * 2048) / BLOCK_SIZE);
+        dim3 griddize((n + BLOCK_SIZE - 1)/ BLOCK_SIZE); 
         SameAddressAtomicOnGlobalMem<<<griddize, blocksize>>>(dev_data, n);
         CudaSafeCall(cudaPeekAtLastError());
     }
     CudaSafeCall(cudaDeviceSynchronize());
 
-    for (int i = 0; i < 1; i++)
     {
         dim3 blocksize(BLOCK_SIZE);
-        dim3 griddize((12 * 2048) / BLOCK_SIZE);
+        dim3 griddize((n + BLOCK_SIZE - 1)/ BLOCK_SIZE); 
         AtomicOnSharedMem<<<griddize, blocksize>>>(dev_data, n);
         CudaSafeCall(cudaPeekAtLastError());
     }

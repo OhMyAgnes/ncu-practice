@@ -9,7 +9,7 @@ add_app(
 )
 
 add_app(
-    APP_NAME case_add
+    APP_NAME case_atom
     APP_SRCS case_atomics.cu
 )
 

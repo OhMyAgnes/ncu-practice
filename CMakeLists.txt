@@ -8,7 +8,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 
 find_package(CUDA)
-
+add_compile_options(-lineinfo)
+add_compile_options(-keep)
 include(Apps)
 
 add_subdirectory(test_cases)
